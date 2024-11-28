@@ -26,11 +26,11 @@ jobs:
 
       - name: Deliver Artifact to Runner
         run: |
-          cp target/*.jar /home/jeus/buttentica
+          cp target/buttentica-0.0.1.jar /home/jeus/buttentica
 
       - name: Run Application with Secrets
         run: |
-          java -jar /path/to/your/deployment/directory/your-app.jar
+          java -jar /home/jeus/buttentica/buttentica.jar
         env:
           DB_PATH: ${{ secrets.DB_PATH }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
