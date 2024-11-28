@@ -1,0 +1,37 @@
+name: Build and Deliver
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 22
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '22' # Update based on your Spring Boot requirements
+
+      - name: Build Project with Maven
+        run: mvn clean package -DskipTests
+        env:
+          MAVEN_OPTS: '-Xmx1024m'
+
+      - name: Deliver Artifact to Runner
+        run: |
+          cp target/*.jar /home/jeus/buttentica
+
+      - name: Run Application with Secrets
+        run: |
+          java -jar /path/to/your/deployment/directory/your-app.jar
+        env:
+          DB_PATH: ${{ secrets.DB_PATH }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
