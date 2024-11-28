@@ -1,6 +1,6 @@
 # Documentation
 
-An AI assist bot for Telegram groups
+A Telegram Bot As An Assistant In Our Chats 
 
 
 
