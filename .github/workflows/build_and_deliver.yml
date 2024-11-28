@@ -13,11 +13,11 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Set up JDK 22
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '22' # Update based on your Spring Boot requirements
+          java-version: '21' # Update based on your Spring Boot requirements
 
       - name: Build Project with Maven
         run: mvn clean package -DskipTests
