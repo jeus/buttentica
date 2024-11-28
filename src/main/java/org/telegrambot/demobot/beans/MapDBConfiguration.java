@@ -18,7 +18,6 @@ public class MapDBConfiguration {
 
     @Bean
     public DB db() {
-        System.out.println(DB_PATH+"==================================");
         var db = DBMaker.fileDB(DB_PATH).fileMmapEnable().make();
         return db;
     }
