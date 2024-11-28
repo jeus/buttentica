@@ -26,7 +26,7 @@ jobs:
 
       - name: Deliver Artifact to Runner
         run: |
-          cp target/buttentica-0.0.1.jar /home/jeus/buttentica
+          cp target/buttentica-0.0.1.jar /home/jeus/buttentica/buttentica.jar
 
       - name: Run Application with Secrets
         run: |
