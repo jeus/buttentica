@@ -14,10 +14,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MapDBConfiguration {
     private final Logger log = LoggerFactory.getLogger(MapDBConfiguration.class);
-    private static final String DB_PATH = System.getenv("MESSAGE_HISTORY_PATH");
+    private static final String DB_PATH = System.getenv("DB_PATH");
 
     @Bean
     public DB db() {
+        System.out.println(DB_PATH+"==================================");
         var db = DBMaker.fileDB(DB_PATH).fileMmapEnable().make();
         return db;
     }

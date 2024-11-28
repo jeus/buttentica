@@ -21,7 +21,7 @@ import java.util.List;
 @Service
 public class ChatGPTClient {
     private static final String URL = "https://api.openai.com/v1/chat/completions";
-    private static final String API_KEY = System.getenv("OPEN_API_KEY");// Replace with your actual API key
+    private static final String API_KEY = System.getenv("OPENAI_API_KEY");// Replace with your actual API key
 
     private final OkHttpClient client = new OkHttpClient();
     private final ObjectMapper mapper = new ObjectMapper();
