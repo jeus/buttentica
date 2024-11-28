@@ -10,9 +10,9 @@
     </parent>
     <groupId>org.telegrambot</groupId>
     <artifactId>buttentica</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>Mastering IELTS AI Bot</name>
-    <description>Master IELTS with AI</description>
+    <version>0.0.1</version>
+    <name>Buttentica</name>
+    <description>Buttentica is a bot for assistance chats by AI</description>
     <url/>
     <licenses>
         <license/>
