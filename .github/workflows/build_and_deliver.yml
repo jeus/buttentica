@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-deploy:
     runs-on: self-hosted
-
+    environment: Buttentica_stage
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
