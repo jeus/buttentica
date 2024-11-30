@@ -14,6 +14,8 @@ import org.telegrambot.demobot.pojo.UpdateType;
 import org.telegrambot.demobot.services.Accounting;
 import org.telegrambot.demobot.services.GptServiceImpl;
 import org.telegrambot.demobot.services.MessageHistory;
+import org.telegrambot.demobot.services.handler.UpdateHandler;
+import org.telegrambot.demobot.services.handler.UpdateHandlerFactory;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -54,94 +56,23 @@ public class TelegramListener {
     private void setListener() {
         GetUpdates getUpdates = new GetUpdates();
         getUpdates.allowedUpdates(allowedUpdate);
-//        getUpdates.allowedUpdates("message", "edited_message","my_chat_member", "chat_member");
-        log.info(">>> Listener IS ADDED......");
-
+        log.info("Listener IS STARTED......");
         telegramBot.setUpdatesListener(updates -> {
+            UpdateHandlerFactory handlerFactory = new UpdateHandlerFactory(accounting , messageHistory, botService, telegramBot);
+
             for (Update update : updates) {
                 UpdateType updateType = checkType(update);
                 log.info("TYPE IS: {} ..... UPDATE : {}", updateType, update);
-                switch (updateType) {
-                    case UpdateType.MESSAGE:
-                        try {
-                            accounting.checkValidation(update.message().chat().id());
-                            newMessage(update);
-                        } catch (Exception e) {
-                            log.error(e.getMessage());
-                        }
-                        break;
-                    case UpdateType.MESSAGE_REACTION:
-                        try {
-                            accounting.checkValidation(update.messageReaction().chat().id());
-                            newReaction(update);
-                        }catch (Exception e) {
-                            log.error(e.getMessage());
-                        }
-                        break;
-                    case UpdateType.MESSAGE_HASHTAG:
-                        hashTagCommand(update);
-                        break;
-                    case UpdateType.MESSAGE_BOT_COMMAND:
-                        break;
-                    default:
-                        log.info("Undefined update type: {}", updateType);
+
+                try {
+                    UpdateHandler handler = handlerFactory.getHandler(updateType);
+                    handler.handle(update);
+                } catch (IllegalArgumentException e) {
+                    log.info(e.getMessage());
                 }
             }
             return UpdatesListener.CONFIRMED_UPDATES_ALL;
         }, TelegramListener::handleException, getUpdates);
-    }
-
-    private void newMessage(Update update) {
-
-        long chatId = update.message().chat().id();
-        var messageId = update.message().messageId();
-        String messageText = update.message().text();
-        log.info("SAVE THIS MESSAGE {}_{} .....{} ", messageId, chatId, messageText);
-        messageHistory.saveMessage(messageId, chatId, messageText);
-    }
-
-
-    private void hashTagCommand(Update update) {
-        if (update.message().text().equals("#ADD_CHAT")) {
-            var chatId = update.message().chat().id();
-            try {
-                accounting.addChatByJeus(update.message().from().id(), update.message().chat().id());
-                telegramBot.execute(new SendMessage(chatId, "chat permission issued"));
-            } catch (Exception e) {
-                telegramBot.execute(new SendMessage(chatId, e.getMessage()));
-                log.error(e.getMessage());
-            }
-        } else if (update.message().text().equals("#DELETE_CHAT")) {
-            var chatId = update.message().chat().id();
-            try {
-                accounting.deleteChatByJeus(update.message().from().id(), update.message().chat().id());
-                telegramBot.execute(new SendMessage(chatId, "chat permission terminated"));
-            } catch (Exception e) {
-                telegramBot.execute(new SendMessage(chatId, e.getMessage()));
-                log.error(e.getMessage());
-            }
-        }
-    }
-
-
-    private void newReaction(Update update) {
-        Optional<ReactionTypeEmoji> firstMessage = Arrays.stream(update.messageReaction().newReaction()).filter(rectionType -> "emoji".equals(rectionType.type())).map(ReactionTypeEmoji.class::cast).filter(reactionTypeEmoji -> "\uD83E\uDD14".equals(reactionTypeEmoji.emoji())).findFirst();
-        if (firstMessage.isPresent()) {
-            long messageId = update.messageReaction().messageId();
-            long chatId = update.messageReaction().chat().id();
-            String messageText = messageHistory.getMessage(messageId, chatId);
-            log.info("RECEIVE THIS MESSAGE {}    {}_{} .....{} ", firstMessage.get(), messageId, chatId, messageText);
-            String openAIResponse = botService.getValidationResponse(messageText);
-
-            SendResponse response = telegramBot.execute(new SendMessage(chatId, openAIResponse));
-
-            if (response.isOk()) {
-                log.info("Message sent successfully");
-            } else {
-                log.info("Failed to send message:{} ", response.description());
-            }
-        }
-
     }
 
     private UpdateType checkType(Update update) {
