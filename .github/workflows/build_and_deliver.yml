@@ -29,8 +29,8 @@ jobs:
           cp target/buttentica-0.0.1.jar /home/jeus/buttentica/buttentica.jar
 
       - name: Run Application with Secrets
-        run: |
-          java -jar /home/jeus/buttentica/buttentica.jar
+        run: | 
+           nohup java -jar /home/jeus/buttentica/buttentica.jar > /var/log/buttentica/output.log 2>&1 &D
         env:
           DB_PATH: ${{ secrets.DB_PATH }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
