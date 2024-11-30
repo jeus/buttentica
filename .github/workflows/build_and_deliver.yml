@@ -30,7 +30,7 @@ jobs:
 
       - name: Run Application with Secrets
         run: | 
-           nohup java -jar /home/jeus/buttentica/buttentica.jar > /var/log/buttentica/output.log 2>&1 &D
+           nohup java -jar /home/jeus/buttentica/buttentica.jar > /var/log/buttentica/output.log 2>&1 &
         env:
           DB_PATH: ${{ secrets.DB_PATH }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
