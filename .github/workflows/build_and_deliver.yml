@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - master
-
+env:
+  BUILD_NUMBER: ${{ github.run_number }}
 jobs:
   build-and-deploy:
     runs-on: self-hosted
@@ -29,9 +30,14 @@ jobs:
           cp target/buttentica-0.0.1.jar /home/jeus/buttentica/buttentica.jar
 
       - name: Run Application with Secrets
-        run: | 
-           nohup java -jar /home/jeus/buttentica/buttentica.jar > /var/log/buttentica/output.log 2>&1 &
-        env:
-          DB_PATH: ${{ secrets.DB_PATH }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        run: |
+          echo "VERSION=$BUILD_NUMBER" | sudo tee /etc/systemd/system/my-service.env
+          echo "DB_PATH=${{ secrets.DB_PATH }}" | sudo tee -a /etc/systemd/system/my-service.env
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} | sudo tee -a /etc/systemd/system/my-service.env
+          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} | sudo tee -a /etc/systemd/system/my-service.env 
+          java -version 
+          sudo systemctl restart buttentica.service
+#        env:
+#          DB_PATH: ${{ secrets.DB_PATH }}
+#          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+#          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
