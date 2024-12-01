@@ -31,10 +31,10 @@ jobs:
 
       - name: Run Application with Secrets
         run: |
-          echo "VERSION=$BUILD_NUMBER" | sudo tee /etc/systemd/system/my-service.env
-          echo "DB_PATH=${{ secrets.DB_PATH }}" | sudo tee -a /etc/systemd/system/my-service.env
-          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} | sudo tee -a /etc/systemd/system/my-service.env
-          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} | sudo tee -a /etc/systemd/system/my-service.env 
+          echo "VERSION=$BUILD_NUMBER" | sudo tee /etc/systemd/system/buttentica.env
+          echo "DB_PATH=${{ secrets.DB_PATH }}" | sudo tee -a /etc/systemd/system/buttentica.env
+          echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} | sudo tee -a /etc/systemd/system/buttentica.env
+          echo "TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} | sudo tee -a /etc/systemd/system/buttentica.env
           java -version 
           sudo systemctl restart buttentica.service
 #        env:
