@@ -11,7 +11,10 @@ import org.telegrambot.demobot.services.GptServiceImpl;
 import org.telegrambot.demobot.services.MessageHistory;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Slf4j
 public class MessageReactionHandler implements UpdateHandler {
@@ -19,7 +22,8 @@ public class MessageReactionHandler implements UpdateHandler {
     private final MessageHistory messageHistory;
     private final GptServiceImpl botService;
     private final TelegramBot bot;
-    public MessageReactionHandler(Accounting accounting, MessageHistory messageHistory,GptServiceImpl botService,  TelegramBot bot) {
+
+    public MessageReactionHandler(Accounting accounting, MessageHistory messageHistory, GptServiceImpl botService, TelegramBot bot) {
         this.accounting = accounting;
         this.messageHistory = messageHistory;
         this.botService = botService;
@@ -37,13 +41,13 @@ public class MessageReactionHandler implements UpdateHandler {
     }
 
     private void newReaction(Update update) {
-        Optional<ReactionTypeEmoji> firstMessage = Arrays.stream(update.messageReaction().newReaction()).filter(rectionType -> "emoji".equals(rectionType.type())).map(ReactionTypeEmoji.class::cast).filter(reactionTypeEmoji -> "\uD83E\uDD14".equals(reactionTypeEmoji.emoji())).findFirst();
-        if (firstMessage.isPresent()) {
+        Arrays.stream(update.messageReaction().newReaction()).filter(rectionType -> rectionType.type().equals("emoji")).map(ReactionTypeEmoji.class::cast).filter(reactionTypeEmoji -> botService.checkEmojiHasPrompt(reactionTypeEmoji.emoji())).forEach(reactionType -> {
+            var func = botService.getFunction(reactionType.emoji());
             long messageId = update.messageReaction().messageId();
             long chatId = update.messageReaction().chat().id();
             String messageText = messageHistory.getMessage(messageId, chatId);
-            log.info("RECEIVE THIS MESSAGE {}    {}_{} .....{} ", firstMessage.get(), messageId, chatId, messageText);
-            String openAIResponse = botService.getValidationResponse(messageText);
+            log.info("RECEIVE THIS MESSAGE {}    {}_{} .....{} ", reactionType, messageId, chatId, messageText);
+            String openAIResponse = func.apply(messageText);
 
             SendResponse response = bot.execute(new SendMessage(chatId, openAIResponse));
 
@@ -52,7 +56,7 @@ public class MessageReactionHandler implements UpdateHandler {
             } else {
                 log.info("Failed to send message:{} ", response.description());
             }
-        }
+        });
 
     }
 }
