@@ -6,16 +6,24 @@ import org.telegrambot.demobot.pojo.GptMessage;
 import org.telegrambot.demobot.clients.ChatGPTClient;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 
 @Service
 public class GptServiceImpl implements GptService {
 
     private final ChatGPTClient chatGptclient;
+    Map<String, Function<String, String>> functionMap = new HashMap<>();
+
 
     public GptServiceImpl(ChatGPTClient chatGptclient) {
         this.chatGptclient = chatGptclient;
+        functionMap.put("\uD83E\uDD14", this::getValidationResponse);
+        functionMap.put("✍", this::getTranslate);
+        functionMap.put("\uD83D\uDC40",this::getIdioms);
     }
 
 
@@ -33,7 +41,7 @@ public class GptServiceImpl implements GptService {
 
     public String getIdioms(String message) {
         List<GptMessage> messages = new ArrayList<>();
-        messages.add(new GptMessage("system", "You are an native english man who is living in united state you get message and tell me idioms corresponding to sentences as a short response two or at most 3 idioms are enough for any sentence."));
+        messages.add(new GptMessage("system", "You are a Native American. When you receive a message, provide two to three idioms in english that correspond to the sentences as a short response and front of each write main sentence. Limit your response to no more than 10 lines. If a question is irrelevant or unclear, respond politely with: “I’m sorry, I cannot answer that question as it is outside my scope.”"));
         messages.add(new GptMessage("user", message));
 
         try {
@@ -66,6 +74,15 @@ public class GptServiceImpl implements GptService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Function<String, String> getFunction(String reaction) {
+        System.out.println("Reaction: " + reaction);
+        return functionMap.get(reaction);
+    }
+
+    public boolean checkEmojiHasPrompt(String emoji) {
+        return functionMap.containsKey(emoji);
     }
 
 
